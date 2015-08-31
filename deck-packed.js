@@ -1,6 +1,6 @@
 /*
   This is a packed deck.js with some extensions and styles.
-  It has been generated from version 45b7bcbe55519ecaa8fbf732494f1ebef6131ee8 .
+  It has been generated from version 315078b557376451c15f74368503ff73cdf9635a .
   It includes:
      ..../extensions/includedeck/load.js
      ..../jquery.min.js
@@ -26,6 +26,7 @@
      ..../extensions/attribution/deck.attribution.js
      ..../extensions/container-styling/deck.container-styling.js
      ..../extensions/timekeeper/deck.timekeeper.js
+     ..../extensions/incubator/toggle-comments.js
      ..../extensions/codemirror/codemirror-compressed.js
      ..../extensions/codemirror/deck.codemirror.js
      ..../extensions/style-chunks/core.css
@@ -40,6 +41,7 @@
      ..../extensions/timekeeper/deck.timekeeper.css
      ..../extensions/style-chunks/simple.css
      ..../extensions/style-chunks/comments.css
+     ..../extensions/incubator/simple-layouts.css
      ..../extensions/codemirror/codemirror.css
 */
 
@@ -190,6 +192,12 @@ function includedeck(m, c) {
 	    prefix + "/extensions/style-chunks/comments.css"
         ],
         /////////////////////////////////////////
+        // pre profile custom incubator include
+        "profile-6-incubator": [
+            prefix + "/extensions/incubator/simple-layouts.css",
+            prefix + "/extensions/incubator/toggle-comments.js"
+        ],
+        /////////////////////////////////////////
         // external extensions (not in this repository at the time of writting)
         "codemirror": [
             prefix + "/extensions/codemirror/codemirror-compressed.js",
@@ -220,7 +228,7 @@ function includedeck(m, c) {
                       "@_metadata", "@_attribution", "@_container-styling", "@_timekeeper", "@_style-chunks"],
         /// profile-6: same as profile 5 but use smartdown+katex
         "profile-6": ["@_newdeck", "@_smartdown", "@_fit-fs", "@_katex", "@_clone", "@_goto", "@_progress", "@_navigation", "@_menu", "@_step", "@_events", "@_anim", "@_svg",
-                      "@_metadata", "@_attribution", "@_container-styling", "@_timekeeper", "@_style-chunks"],
+                      "@_metadata", "@_attribution", "@_container-styling", "@_timekeeper", "@_style-chunks", "@_profile-6-incubator"],
         dummy: {}
     };
 
@@ -3602,9 +3610,9 @@ This is actually the third try and it uses showdown.js (1st: smartsyntax, 2nd: s
     function maybeProcessComment(txtNode) {
         var line = txtNode.textContent;
         var clean = function(s) { return s.replace(/ *$/, ''); };
-        if (line.match(/^([\s\S]*) \/\/(.*)$/) || line.match(/^()\/\/(.*)$/)) {
+        if (line.match(/^([\s\S]*)( |\n)\/\/(.*)[\n\r]*$/) || line.match(/^()()\/\/(.*)[\n\r]*$/)) {
             var d1 = RegExp.$1;
-            var d2 = RegExp.$2;
+            var d2 = RegExp.$3;
             txtNode.textContent = clean(d1);
             var node = txtNode.parentNode;
             var comm = document.createElement('div');
@@ -3756,6 +3764,9 @@ This is actually the third try and it uses showdown.js (1st: smartsyntax, 2nd: s
     function isText(node) {
         return node.nodeType == node.TEXT_NODE;
     }
+    function isXmlComment(node) {
+        return node.nodeType == node.COMMENT_NODE;
+    }
     function replaceNodeByNodes(node, nodes) {
         for (var i = nodes.length; i >= 0; i--) {
             $(nodes[i]).insertAfter(node);
@@ -3826,12 +3837,13 @@ This is actually the third try and it uses showdown.js (1st: smartsyntax, 2nd: s
                     if (isElement(node)) {
                         patch(node);
                     } else if (isText(node)) {
-                        var txt = node.textContent;
                         // return -1 means reprocess from the same position
                         if (maybeProcessChunk(node)) return -1;
                         if (maybeProcessComment(node)) return -1;
                         if (maybeProcessAtSomething(node)) return -1;
                         if (maybeProcessIDOrClassDecoration(node)) return -1;
+                    } else if (isXmlComment(node)) {
+                        // ignore
                     } else {
                         alert('Should not happen: '+node.nodeType);
                     }
@@ -3903,6 +3915,7 @@ This is actually the third try and it uses showdown.js (1st: smartsyntax, 2nd: s
         if (typeof opts.AFTERSMARKDOWN !== 'undefined') {
             alert("Warning: you're using 'smartdown' but you have a AFTERSMARKDOWN property.\nThis new 'smartdown' (smart vs smark) uses AFTERSMARTDOWN (with a T).")
         }
+        maybe(opts.AFTERSMARTDOWN)();
         $[deck]('reInitSlidesArray')
     });
 
@@ -6162,6 +6175,19 @@ It also injects some default html for it if none is found (and styles it for the
 })(jQuery, 'deck');
 
 
+
+$(function() {
+    // Bind key event
+    var $d = $(document);
+    $d.unbind('keydown.togglecomments').bind('keydown.togglecomments', function(e) {
+        var K = 86;
+        if (e.which === K || $.inArray(e.which, K) > -1) {
+            $("body").toggleClass("show-comments");
+            e.preventDefault();
+        }
+    });
+});
+
 /* CodeMirror - Minified & Bundled
    Generated on 8/25/2015 with http://codemirror.net/doc/compress.html
    Version: HEAD
@@ -6762,6 +6788,167 @@ function ACTUALLY_FILL_CSS(el) { $(el).text("\n"+
 "  margin-top: -13.333px;\n"+
 "  margin-bottom: -26.667px;\n"+
 "}\n"+
+"\n"+
+".slide .floatright {\n"+
+"  float: right; }\n"+
+"\n"+
+".slide .floatleft {\n"+
+"  float: left; }\n"+
+"\n"+
+".slide .displaynone {\n"+
+"  display: none; }\n"+
+"\n"+
+".slide li.no {\n"+
+"  list-style: none !important; }\n"+
+"\n"+
+".slide.no-bullets ol, .slide.no-bullets ul {\n"+
+"  list-style: none; }\n"+
+"\n"+
+".slide .center {\n"+
+"  text-align: center; }\n"+
+"\n"+
+".slide .left {\n"+
+"  float: left;\n"+
+"  width: 50%; }\n"+
+"\n"+
+".slide .right {\n"+
+"  float: right;\n"+
+"  width: 50%; }\n"+
+"\n"+
+".slide .c1 {\n"+
+"  width: 8.333% !important; }\n"+
+"\n"+
+".slide .c2 {\n"+
+"  width: 16.667% !important; }\n"+
+"\n"+
+".slide .c3 {\n"+
+"  width: 25% !important; }\n"+
+"\n"+
+".slide .c4 {\n"+
+"  width: 33.333% !important; }\n"+
+"\n"+
+".slide .c5 {\n"+
+"  width: 41.667% !important; }\n"+
+"\n"+
+".slide .c6 {\n"+
+"  width: 50% !important; }\n"+
+"\n"+
+".slide .c7 {\n"+
+"  width: 58.333% !important; }\n"+
+"\n"+
+".slide .c8 {\n"+
+"  width: 66.667% !important; }\n"+
+"\n"+
+".slide .c9 {\n"+
+"  width: 75% !important; }\n"+
+"\n"+
+".slide .c10 {\n"+
+"  width: 83.333% !important; }\n"+
+"\n"+
+".slide .c11 {\n"+
+"  width: 91.667% !important; }\n"+
+"\n"+
+".slide .c12 {\n"+
+"  width: 100% !important; }\n"+
+"\n"+
+".slide .C1 {\n"+
+"  width: 4.167% !important; }\n"+
+"\n"+
+".slide .C2 {\n"+
+"  width: 8.333% !important; }\n"+
+"\n"+
+".slide .C3 {\n"+
+"  width: 12.5% !important; }\n"+
+"\n"+
+".slide .C4 {\n"+
+"  width: 16.667% !important; }\n"+
+"\n"+
+".slide .C5 {\n"+
+"  width: 20.833% !important; }\n"+
+"\n"+
+".slide .C6 {\n"+
+"  width: 25% !important; }\n"+
+"\n"+
+".slide .C7 {\n"+
+"  width: 29.167% !important; }\n"+
+"\n"+
+".slide .C8 {\n"+
+"  width: 33.333% !important; }\n"+
+"\n"+
+".slide .C9 {\n"+
+"  width: 37.5% !important; }\n"+
+"\n"+
+".slide .C10 {\n"+
+"  width: 41.667% !important; }\n"+
+"\n"+
+".slide .C11 {\n"+
+"  width: 45.833% !important; }\n"+
+"\n"+
+".slide .C12 {\n"+
+"  width: 50% !important; }\n"+
+"\n"+
+".slide .C13 {\n"+
+"  width: 54.167% !important; }\n"+
+"\n"+
+".slide .C14 {\n"+
+"  width: 58.333% !important; }\n"+
+"\n"+
+".slide .C15 {\n"+
+"  width: 62.5% !important; }\n"+
+"\n"+
+".slide .C16 {\n"+
+"  width: 66.667% !important; }\n"+
+"\n"+
+".slide .C17 {\n"+
+"  width: 70.833% !important; }\n"+
+"\n"+
+".slide .C18 {\n"+
+"  width: 75% !important; }\n"+
+"\n"+
+".slide .C19 {\n"+
+"  width: 79.167% !important; }\n"+
+"\n"+
+".slide .C20 {\n"+
+"  width: 83.333% !important; }\n"+
+"\n"+
+".slide .C21 {\n"+
+"  width: 87.5% !important; }\n"+
+"\n"+
+".slide .C22 {\n"+
+"  width: 91.667% !important; }\n"+
+"\n"+
+".slide .C23 {\n"+
+"  width: 95.833% !important; }\n"+
+"\n"+
+".slide .C24 {\n"+
+"  width: 100% !important; }\n"+
+"\n"+
+".slide .clearboth {\n"+
+"  clear: both; }\n"+
+"\n"+
+".slide.media-left > *:not(h2):not(h1):not(img):not(blockquote):not(pre):not(div):not(figure):not(.media) {\n"+
+"  margin-left: 400px; }\n"+
+".slide.media-left > figure, .slide.media-left > img, .slide.media-left > blockquote, .slide.media-left > pre, .slide.media-left > .media {\n"+
+"  float: left;\n"+
+"  width: 50%;\n"+
+"  box-sizing: border-box; }\n"+
+"\n"+
+".slide.media-right > *:not(h2):not(h1):not(img):not(blockquote):not(pre):not(div):not(figure):not(.media) {\n"+
+"  margin-right: 400px; }\n"+
+".slide.media-right > figure, .slide.media-right > img, .slide.media-right > blockquote, .slide.media-right > pre, .slide.media-right > .media {\n"+
+"  float: right;\n"+
+"  width: 50%;\n"+
+"  box-sizing: border-box; }\n"+
+"\n"+
+".slide.image-stripes > div {\n"+
+"  overflow: hidden;\n"+
+"  align-content: center; }\n"+
+".slide.image-stripes img {\n"+
+"  height: 400px;\n"+
+"  max-width: none;\n"+
+"  position: relative;\n"+
+"  left: 50%;\n"+
+"  transform: translate(-50%, 0); }\n"+
 "\n"+
 "/* BASICS */\n"+
 "\n"+
