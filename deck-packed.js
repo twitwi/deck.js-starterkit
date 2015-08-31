@@ -1,6 +1,6 @@
 /*
   This is a packed deck.js with some extensions and styles.
-  It has been generated from version 315078b557376451c15f74368503ff73cdf9635a .
+  It has been generated from version 6b67084a1a01e8dfc35bb9f41ac81ff7af64a08e .
   It includes:
      ..../extensions/includedeck/load.js
      ..../jquery.min.js
@@ -3533,7 +3533,7 @@ This is actually the third try and it uses showdown.js (1st: smartsyntax, 2nd: s
             slide = $(base).clone().get(0);
             slide.removeAttribute('id');
             if (hasAnim) {
-                $('<div>').text('@anim:'+animPart).insertBefore(slide.firstChild);
+                $('<div>').text('@anim:'+animPart).insertAfter(slide.firstChild); // first is the heading, we want to keep it there
             }
             slides[s] = slide;
             return s;
