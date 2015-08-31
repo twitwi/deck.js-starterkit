@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+            
+        <title>TODO: deck.js StarterKit template</title>
+
+        <meta name="author" content="TODO: Rémi Bob Emonet">
+        <meta name="venue" content="TODO:">
+        <meta name="date" content="TODO: 2015-08-30">
+
+        <style type="text/css">
+            /* custom css can be written here, some examples provided */
+            
+            /* for the base demo */
+            .in-red {color: red !important; text-decoration: underline;}
+            
+            /* for the svg demo */
+            svg .in-red {fill: darkred; fill-opacity: .5; stroke: white;}
+            
+            /* code highlighting height */
+            .auto+.CodeMirror {height: auto;}
+            .dense+.CodeMirror {font-size: 66%;}
+
+            /* a few nicer slides */
+            .blackbg {background: black !important;}
+            .title-slide ul li { list-style: none; }
+            .title-slide ul {
+                font-size: 20px; color: darkgrey;
+                text-align: center;
+                position: absolute; bottom: 50px; left:0; right: 0;
+            }
+        </style>
+
+
+	<script src="deck-packed.js"></script>
+        <script>
+            var cssAndJs = ["light-red-dense.css"]; // include the theme (can add any css or js to the list)
+            var options = {}; // to override default deck.js options
+            includedeck(cssAndJs, options);
+        </script>
+    </head>
+    <body>
+        <div class="deck-container">
+
+            <!-- splash screen when loading -->
+            <div class="deck-loading-splash" style="background: black; color: chartreuse;">
+                <span class="vcenter" style="font-size: 30px; font-family: Arial; ">Please wait, while the deck is loading…</span>
+            </div>
+
+
+            <!-- --------------------------- -->
+            <!-- slides in extended markdown -->
+            <section class="smart">
+
+## In this presentation, you'll find
+- An example title slide
+- Examples of section slides (#) and normal slides (##)
+- Examples of custom classes and how to put them on some element
+- Examples of incremental apparition of bullet points
+- **NB: Use left/right arrows to navigate**
+
+
+# <span class="var-title-br"></span> {*no-status title-slide} // comment
+- <span class="var-author"></span>
+- <span class="var-date"></span>
+
+## Overview {#the-overview}
+- we could have written something
+- in this overview
+- but the goal is to illustrate the fact that
+- you can:
+    1. give an identifier to any element (or a slide)
+    1. easily copy a slide with `@copy` (this will be illustrated at the end)
+
+## One can type slides in markdown
+- Most of this demo is like that that
+
+## You can mix HTML too, if you need very specific things
+<div>
+    <div style="width: 45%; float: left; border: 1px solid black;"> this is a two-column layout (that could be achieved with some classes and css styles also) </div>
+    <div style="width: 45%; float: right; border: 1px solid black;"> lorem ipsum … </div>
+</div>
+
+## Adding classes and incremental display
+- This has a css class that makes it hightlighted in red {in-red}
+- This is normal
+  - this is nested
+  - also this one in highlighted {in-red}
+- The `slide` class can be added to make incremental display
+- This one should only appear later {slide}
+  - this one appears with its parent
+  - and later {slide}
+- and later {slide}
+- This one is there from the beginning
+
+## Adding images etc
+- One can use plain html
+- As here: <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/96/139.jpg" alt="kitten!"/>
+- Or there:
+
+<img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/139.jpg" alt="kitten!"/>
+
+NB: these ones are online but you can use local images as well
+
+## Including SVG images
+@svg: Test.svg 700 200
+
+- One can use the special `@svg` annotation
+- SVG images loaded this way can be styled and animated
+- For this, one can use the `@anim` annotation (see next slide)
+
+## Animating SVG images
+- 1<sup>st</sup>: make something appear, with @`anim: #use47`
+- @anim: #use47
+- 3 next steps: with @`anim: #use49 | #use51 | #use53`
+- @anim: #use49 | #use51 | #use53
+- disappearing and doing multiple things per step, with <br/> @`anim: -#use49 | - #use51,#use53 | #use51,#use53 + #use49 + -#use47`
+- @anim: -#use49 | - #use51,#use53 | #use51,#use53 + #use49 + -#use47
+- adding a class (also works on non-SVG), with <br/> @`anim: %+class:in-red: #tspan3448`
+- @anim: %+class:in-red: #tspan3448
+
+@svg: Test.svg 700 200
+
+## Useful [shortcuts](http://home.heeere.com/tech-deckjs-ext.html#keys)
+- 'g' to open the "goto slide" panel
+- 'm' to view the slide selector
+- 'c' to clone the view (the original becomes the presenter view)
+- left/right to step forward and backward
+- down/up to move slide by slide (when presenting, e.g., down will go to the beginning of the next slide, before any animation/incremental display takes place)
+- 'z'/'a' to browse slide by slide (when browsing, e.g., 'z' will go the end of the next slide)
+
+## Writing Maths
+- One can write math equations using the latex syntax, opening and closing with a dollar sign
+- Underscore characters (and backslash) need to be escaped
+- Examples below
+- $\left[\begin{array}{cc} \sqrt{x} & 2 \\\\ 3 & x^4 \end{array}\right]$ or $\left\(\frac{x^2}{y^3}\right\)$ is made of $x^2$ and $y^3$
+- $\mathcal{L} = \sum\_d \sum\_w \sum\_{t\_a} n(w,t\_a,d) log \sum\_z \sum\_{t\_s} p(w,t\_r|z) p(z,t\_s|d)$ {center}
+
+$a^2 + \frac{1}{\sqrt{a^2 + \frac{1}{\sqrt{a^2 + \frac{1}{\sqrt{a^2 + b^{\infty}}}}}}}$
+*$a^2 + \frac{1}{\sqrt{a^2 + \frac{1}{\sqrt{a^2 + \frac{1}{\sqrt{a^2 + b^{\infty}}}}}}}$ {in-red}* (classy)
+
+## Highlighting source code (and two-column layout)
+Some python
+```python
+def main():
+   a = 12
+   print(a+a)
+   return a+1
+
+main()
+{auto}
+```
+
+Some shell
+```bash
+echo "hello ${world}"
+{auto}
+```
+
+## Highlighting source code
+- With the `auto` class
+```python
+def magic(a): return a*a+1
+{auto dense}
+```
+- Without `auto`, the highlighter uses a fixed height by default
+```python
+def magic(a): return a*a+1
+{dense}
+```
+- ^ see the fixed height
+
+# More stuff about different extensions at [http://home.heeere.com/tech-deckjs-ext.html](http://home.heeere.com/tech-deckjs-ext.html)
+
+# That's it, let's bring back our overview
+
+# @copy: #the-overview
+
+# Once more our overview, with some "animation"
+
+# @copy: #the-overview: %+class:in-red: ol
+
+## random END image {*no-status *blackbg image-full bottom-right darkened}
+<img src="http://lorempixel.com/800/600/"/>
+
+# fake end (check the slide number and go to the next slide) {deck-status-fake-end}
+
+## supplementary slides
+- One can “hide” slides by putting them after a slide with class `deck-fake-end`
+
+## more supplementary
+
+
+            </section>
+
+            <!-- footer and other decorations -->
+            <p class="deck-status deck-progress-10">
+                <span class="deck-status-current"></span> / <span class="deck-status-total"></span> − <span class="var-author">automatically replaced by the author</span> − <span class="var-title">automatically replaced by the title</span>
+            </p>
+
+
+        </div>
+    </body>
+
+</html>
