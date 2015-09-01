@@ -1,6 +1,6 @@
 /*
   This is a packed deck.js with some extensions and styles.
-  It has been generated from version 50d22315d64c1381e206b22f68e18b1985c08365 .
+  It has been generated from version 145e0af05481569880266b0eea014ce6c5f65e30 .
   It includes:
      ..../extensions/includedeck/load.js
      ..../jquery.min.js
@@ -3764,7 +3764,7 @@ This is actually the third try and it uses showdown.js (1st: smartsyntax, 2nd: s
                 if (isElement(node)) {
                     patch(node);
                 } else if (isText(node)) {
-                    f(i, node);
+                    return f(i, node);
                 }
             });
         })(tree);
