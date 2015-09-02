@@ -1,6 +1,6 @@
 /*
   This is a packed deck.js with some extensions and styles.
-  It has been generated from version 9da8346571b9430f0715bdaac5243d050d607483 .
+  It has been generated from version a74a18c3c62a0defc171fcdf4e5fc30839ee998f .
   It includes:
      ..../extensions/includedeck/load.js
      ..../jquery.min.js
@@ -3859,7 +3859,7 @@ This is actually the third try and it uses showdown.js (1st: smartsyntax, 2nd: s
             });
             // process the $math$
             eachTextNodeRecursive(slide, function(i, node) { // what to do to a text node
-                if (node.textContent.contains('$')) {
+                if (node.textContent.match(/\$/)) {
                     var wrap = document.createElement('div');
                     wrap.innerHTML = processMath(node.textContent);
                     eachTextNodeRecursive(wrap, function(i2, node2) {
