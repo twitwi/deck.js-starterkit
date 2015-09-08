@@ -28,8 +28,8 @@ Optional, step 4, change the theme:
 
 ## What it contains
 
-Latest version (see around https://github.com/twitwi/deck.js/blob/master/extensions/includedeck/load.js#L177 for details):
-- profile-6 + codemirror + lightreddense-style + katex-fonts
+Latest version (see around https://github.com/twitwi/deck.js/blob/master/extensions/includedeck/load.js#L182 for details):
+- profile-6 + [codemirror](https://github.com/twitwi/deck.codemirror.js) + lightreddense-theme + katex-fonts
 
 
 
