@@ -19,8 +19,6 @@
             /* for the svg demo */
             svg .in-red {fill: darkred; fill-opacity: .5; stroke: white;}
             
-            /* code highlighting height */
-            .auto .CodeMirror {height: auto !important;}
             .dense {font-size: 66%;}
 
             /* a few nicer slides */
@@ -140,7 +138,7 @@ NB: these ones are online but you can use local images as well
 $a^2 + \frac{1}{\sqrt{a^2 + \frac{1}{\sqrt{a^2 + \frac{1}{\sqrt{a^2 + b^{\infty}}}}}}}$
 *$a^2 + \frac{1}{\sqrt{a^2 + \frac{1}{\sqrt{a^2 + \frac{1}{\sqrt{a^2 + b^{\infty}}}}}}}$ {in-red}* (classy)
 
-## Highlighting code
+## Highlighting source code
 - Some python
 ```python
 def main():
@@ -159,17 +157,17 @@ echo "hello ${world}"
 ```
 
 ## Highlighting source code
-- With the `auto` class
+- With the `dense` class (custom css for this page)
 ```python
 def magic(a): return a*a+1
 {auto dense}
 ```
-- Without `auto`, the highlighter uses a fixed height by default
+- and more
 ```python
-def magic(a): return a*a+1
+def magic(a):
+    return a*a+1
 {dense}
 ```
-- ^ see the fixed height
 
 # More stuff about different extensions at [http://home.heeere.com/tech-deckjs-ext.html](http://home.heeere.com/tech-deckjs-ext.html)
 
