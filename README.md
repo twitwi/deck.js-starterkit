@@ -4,7 +4,7 @@ A "minimal" repository to start writing a deck.js presentation (contains a lot o
 
 This is a bigger version of https://github.com/twitwi/deck.js-packed, including a presentation file, some fonts so that the presentation is guaranteed to work offline, some theme, etc.
 
-To see what you'll get, visit https://twitwi.github.io/deck.js-starterkit/index.html
+To see what you'll get, visit https://twitwi.github.io/deck.js-starterkit/
 
 ##  To use it
 
