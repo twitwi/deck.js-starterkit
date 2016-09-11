@@ -29,6 +29,13 @@
                 text-align: center;
                 position: absolute; bottom: 50px; left:0; right: 0;
             }
+
+            /* for the container styling demo */
+            .bgred {background: #FAA !important;}
+            .zoomed-out {
+                transform: rotate(45deg) scale(0.5, 0.5);
+                transition: 1s transform;
+            }
         </style>
 
 
@@ -120,6 +127,18 @@ NB: these ones are online but you can use local images as well
 - @anim: %+class:in-red: #tspan3448
 
 @svg: Test.svg 700 200
+
+## Global Effects
+- One can also have effects that affects not only the slide but the container
+- This can be done, e.g., in the next 4 steps with
+  - @`anim: %+class:/bgred`
+  - @`anim: %+class:/zoomed-out`
+  - @`anim: %-class:/bgred`
+  - @`anim: %-class:/zoomed-out`
+- @anim: %+class:/bgred
+- @anim: %+class:/zoomed-out
+- @anim: %-class:/bgred
+- @anim: %-class:/zoomed-out
 
 ## Useful [shortcuts](http://home.heeere.com/tech-deckjs-ext.html#keys)
 - 'g' to open the "goto slide" panel
