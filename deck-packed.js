@@ -1,6 +1,6 @@
 /*
   This is a packed deck.js with some extensions and styles.
-  It has been generated from version 6277a5c189dfd5c6c095438dc7949f52db960218 .
+  It has been generated from version e732bc7efdd91724d08e4fa5793878bdb52bcaa2 .
   It includes:
      ..../extensions/includedeck/load.js
      ..../jquery.min.js
@@ -3710,14 +3710,24 @@ This is actually the third try and it uses showdown.js (1st: smartsyntax, 2nd: s
                         dd();
                     } else if (startsWith(what, "%%class:")) {
                         var main = RESTRIM.split(/ *: */);
-                        addClass(toAdd, "anim-addclass");
-                        addSpaceSeparatedAttr(toAdd, "data-class", main[0]);
-                        addSpaceSeparatedAttr(toAdd, "data-what", main.slice(1).join(":"));
+                        if (main[0].startsWith("/")) {
+                            addClass(toAdd, "anim-addcontainerclass");
+                            addSpaceSeparatedAttr(toAdd, "data-class", main[0].substr(1));
+                        } else {
+                            addClass(toAdd, "anim-addclass");
+                            addSpaceSeparatedAttr(toAdd, "data-class", main[0]);
+                            addSpaceSeparatedAttr(toAdd, "data-what", main.slice(1).join(":"));
+                        }
                     } else if (startsWith(what, "%-class:")) {
                         var main = RESTRIM.split(/ *: */);
-                        addClass(toAdd, "anim-removeclass");
-                        addSpaceSeparatedAttr(toAdd, "data-class", main[0]);
-                        addSpaceSeparatedAttr(toAdd, "data-what", main.slice(1).join(":"));
+                        if (main[0].startsWith("/")) {
+                            addClass(toAdd, "anim-removecontainerclass");
+                            addSpaceSeparatedAttr(toAdd, "data-class", main[0].substr(1));
+                        } else {
+                            addClass(toAdd, "anim-removeclass");
+                            addSpaceSeparatedAttr(toAdd, "data-class", main[0]);
+                            addSpaceSeparatedAttr(toAdd, "data-what", main.slice(1).join(":"));
+                        }
                     } else if (startsWith(what, "+")) {
                         addClass(toAdd, "anim-show");
                         dw();
@@ -4178,7 +4188,7 @@ http://khan.github.io/KaTeX/
 
 /*!
 Deck JS - deck.clone
-Copyright (c) 2011-2014 Rémi Emonet, original version from Rémi BARRAQUAND
+Copyright (c) 2011-2016 Rémi Emonet, original version from Rémi BARRAQUAND
 Licensed under the MIT license.
 https://github.com/imakewebthings/deck.js/blob/master/MIT-license.txt
 */
@@ -4196,12 +4206,15 @@ It also provides the behavior that copies the current "notes" to a "notes-target
         selectors: {
             clonepointer: '.clonepointer',
             cloneNotes: '.notes',
-            cloneNotesTarget: '.notes-target'
+            cloneNotesTarget: '.notes-target',
+            cloneSync: '.sync'
         },
         classes: {
             isClone: 'is-clone',
             hasClones: 'has-clones',
-            pointerClick: 'pointer-click'
+            pointerClick: 'pointer-click',
+            cloneSyncReadPrefix: 'clone-',
+            cloneSyncWritePrefix: 'write-'
         },
         snippets: {
             clone: true
@@ -4245,6 +4258,27 @@ It also provides the behavior that copies the current "notes" to a "notes-target
     });
     $[deck]('extend', 'cleanClones', function() { // to be triggered by the closing of a clone window
         setTimeout(cleanClones, 1);
+    });
+    $[deck]('extend', 'cloneSetItem', function(k, v, propagating) {
+        if (isClone && !propagating) {
+            parentDeck('cloneSetItem', k, v);
+            return;
+        }
+        var opts = $[deck]('getOptions');
+        var oldValue = localStorage.getItem(k, v);
+        $(opts.selectors.cloneSync+'.'+k).val(v);
+        // should we broadcast to other clones
+        if (oldValue == v) {
+            return;
+        }
+        localStorage.setItem(k, v);
+        cleanClones();
+        $.each(clones, function(index, clone) {
+            clone.deck('cloneSetItem', k, v, true);
+        });
+    });
+    $[deck]('extend', 'cloneGetItem', function(k) {
+        return localStorage.getItem(k, v);
     });
     $[deck]('extend', 'pointerAt', function(rx, ry) {
         var pos = {left: (rx*100)+"%", top: (ry*100)+"%"};
@@ -4293,6 +4327,20 @@ It also provides the behavior that copies the current "notes" to a "notes-target
 
         $(opts.selectors.clonepointer).hide();
 
+        
+        $('.sync').each(function(ii) {
+            var classes = this.classList;
+            for (var i = 0; i < classes.length; i++) {
+                var c = classes.item(i);
+                if (c.startsWith(opts.classes.cloneSyncWritePrefix)) {
+                    $(this).on('keyup', function(e) {
+                        var k = opts.classes.cloneSyncReadPrefix + c.substr(opts.classes.cloneSyncWritePrefix.length);
+                        $[deck]('cloneSetItem', k, $(e.target).val());
+                    });
+                }
+            }
+        });
+        
         function safeIsClone(w) {
             try {
                 return w.opener && w.opener.___iscloner___;
@@ -4376,7 +4424,7 @@ It also provides the behavior that copies the current "notes" to a "notes-target
             clone.deck('pointerUp');
         });
     });
-    
+
     /*
         Simple Clone manager (must be improved, by for instance adding cloning
         option e.g. propagate change, etc.)
@@ -5169,7 +5217,8 @@ It also overrides the defaults keybinding and countNested value (so it is better
     // and go on
     $.extend(true, $[deck].defaults, {
         selectors: {
-            subslidesToNotify: ".slide,.onshowtoplevel"
+            subslidesToNotify: ".slide,.onshowtoplevel",
+            subslidesToAlwaysNotify: ".slide.withglobalimpact"
         },
         // Here we redefined the defaults:
         //  - we avoid counting nested slides
@@ -5305,6 +5354,23 @@ It also overrides the defaults keybinding and countNested value (so it is better
             direction = "reverse";
         }
         var opts = $[deck]('getOptions');
+        // Notify slides between 'from' and 'to' that are special, and touch a global state
+        var all = $[deck]('getSlides').map(function(q, i) {return q.get(0);});
+        $(
+            all.slice(from+1, to+1)
+                .filter(function(e) { return e.matches(opts.selectors.subslidesToAlwaysNotify); })
+        )
+            .each(function() {
+                $(this).triggerHandler('deck.bigJumped', direction);
+            });
+        $(
+            all.slice(to+1, from+1).reverse()
+                .filter(function(e) { return e.matches(opts.selectors.subslidesToAlwaysNotify); })
+        )
+            .each(function() {
+                $(this).triggerHandler('deck.bigJumped', direction);
+            });
+        // Notify slides inside the 'to' toplevel: first all for init, then the one before the 'to' target
         $($[deck]('getToplevelSlideOfIndex', to).node.find(opts.selectors.subslidesToNotify).get().reverse()).each(function(ind, el) {$(el).triggerHandler('deck.toplevelBecameCurrent', direction)});
         for (icur = $[deck]('getToplevelSlideOfIndex', to).index + 1; icur < to+1; icur++) {
             $[deck]('getSlides')[icur].triggerHandler('deck.afterToplevelBecameCurrent', 'forward');
@@ -5364,6 +5430,8 @@ https://github.com/imakewebthings/deck.js/blob/master/MIT-license.txt
             animHide: ".anim-hide",
             animAddClass: ".anim-addclass",
             animRemoveClass: ".anim-removeclass",
+            animAddContainerClass: ".anim-addcontainerclass",
+            animRemoveContainerClass: ".anim-removecontainerclass",
             animAttribute: ".anim-attribute",
             animWait: ".anim-wait",
             // specific ones
@@ -5424,6 +5492,31 @@ https://github.com/imakewebthings/deck.js/blob/master/MIT-license.txt
                 });
             });
         };
+        var simpleWithGlobalState = function(selector, methods) {
+            $(selector).each(function(i, el) {
+                var c = context(el);
+                may(methods, methods.create)(c);
+                $(el).bind('deck.bigJumped', function(_, direction) {
+                    if (direction == 'forward') {
+                        may(methods, methods.doit)(c);
+                    } else {
+                        may(methods, methods.undo)(c);
+                    }
+                }).bind('deck.lostCurrent', function(_, direction, from, to) {
+                    if (direction == 'forward' || Math.abs(from - to)>1 ) return; // if a big step, let the "step" extension do its job
+                    may(methods, methods.undo)(c);
+                }).bind('deck.becameCurrent', function(_, direction, from, to) {
+                    if (direction == 'reverse' || Math.abs(from - to)>1 ) return; // if a big step, let the "step" extension do its job
+                    if (c.delay()>0) {
+                        setTimeout(function() {
+                            may(methods, methods.doit)(c);
+                        }, c.delay());
+                    } else {
+                        may(methods, methods.doit)(c);
+                    }
+                });
+            });
+        };
         
         // here come the real animations
         classical(o.selectors.animShow, {
@@ -5449,6 +5542,14 @@ https://github.com/imakewebthings/deck.js/blob/master/MIT-license.txt
             undo: function(c) {c.all().each(function() { this.classList.add(c.classs()) })},
             doit: function(c) {c.all().each(function() { this.classList.remove(c.classs()) })},
             fast: function(c) {c.all().each(function() { this.classList.remove(c.classs()) })} 
+        });
+        simpleWithGlobalState(o.selectors.animAddContainerClass, {
+            undo: function(c) {$[deck]('getContainer').get(0).classList.remove(c.classs()) },
+            doit: function(c) {$[deck]('getContainer').get(0).classList.add(c.classs()) },
+        });
+        simpleWithGlobalState(o.selectors.animRemoveContainerClass, {
+            undo: function(c) {$[deck]('getContainer').get(0).classList.add(c.classs()) },
+            doit: function(c) {$[deck]('getContainer').get(0).classList.remove(c.classs()) },
         });
         function svgRealAttrName(a) {
             if (startsWith(a, "svg")) {
@@ -5638,6 +5739,12 @@ https://github.com/imakewebthings/deck.js/blob/master/MIT-license.txt
         var container = $[deck]('getContainer');
         $(container).addClass(o.classes.animReady)
     }
+    // automatically enrich the "step" default
+    $(document).bind('deck.beforeInit', function() {
+        var sel = $[deck]('getOptions').selectors;
+        sel.subslidesToAlwaysNotify = [sel.subslidesToAlwaysNotify, sel.animAddContainerClass, sel.animRemoveContainerClass].join(",");
+    });
+    // call init
     $(document).bind('deck.init', function() {
         doInit();
     });
@@ -6015,7 +6122,7 @@ This extension relies on the events extension.
 
 /*!
 Deck JS - deck.timekeeper
-Copyright (c) 2013-2014 Rémi Emonet
+Copyright (c) 2013-2016 Rémi Emonet
 Licensed under the MIT license.
 https://github.com/imakewebthings/deck.js/blob/master/MIT-license.txt
 */
@@ -6114,19 +6221,36 @@ It also injects some default html for it if none is found (and styles it for the
             if (s.length >= base.length) return s;
             else return base.substring(0, base.length - s.length) + s
         }
-        var formatTime = function(t) {
+        var formatTime = function(t, daily) {
+            daily = daily || false;
             var min = parseInt(t / 1000 / 60);
             var sec = parseInt(t / 1000 - 60 * min);
             if (min > 60) {
                 var hours = parseInt(t / 1000 / 60 / 60);
                 min = parseInt(t / 1000 / 60 - 60 * hours);
-                return pad("00", hours) +":"+ pad("00", min) + ":" + pad("00", sec)
+                if (daily) {
+                    hours = t.getHours();
+                }
+                return pad("00", hours) +":"+ pad("00", min) + ":" + pad("00", sec);
             } else {
-                return pad("00", min) + ":" + pad("00", sec)
+                return pad("00", min) + ":" + pad("00", sec);
             }
         }
+        var formatDate = function(t) {
+            var y = t.getFullYear();
+            var m = t.getMonth() + 1;
+            var d = t.getDate();
+            return y + "-" + pad("00", m) + "-" + pad("00", d);
+        }
         var clearStorage = function(what) {
-            // TODO archive
+            { // archive
+                var currentArchives = localStorage.getItem(opts.localStorage.timekeeperArchives);
+                var currentLogs = localStorage.getItem(opts.localStorage.timekeeperLogs);
+                currentArchives = currentLogs + "\n\n" + currentArchives;
+                currentArchives = currentArchives.substr(0, opts.localStorage.timekeeperArchivesMaxSize);
+                localStorage.setItem(opts.localStorage.timekeeperArchives, currentArchives);
+            }
+            // clear
             localStorage.setItem(opts.localStorage.timekeeperLogs, null);
             log("CLEARED BY USER");
             localStorage.setItem(opts.localStorage.timekeeperBase, JSON.stringify(new Date()));
@@ -6150,14 +6274,15 @@ It also injects some default html for it if none is found (and styles it for the
         }
         var log = function(what) {
             var now = new Date();
-            var time = now.toString()
+            var dateString = formatDate(now);
+            var timeString = formatTime(now, true);
             var localBase = getDateOrSet(opts.localStorage.timekeeperLocalBase, now);
             var base = getDateOrSet(opts.localStorage.timekeeperBase, now);
             var db = (now - localBase)/1000;
             var dcb = (now - base)/1000;
             var dbtime = formatTime(now - localBase);
             var dcbtime = formatTime(now - base);
-            var log = time.replace(/GMT.*/, "") + " " + what + " " + dcb + " " + db + " " + dcbtime + " " + dbtime;
+            var log = dateString + " " + timeString + " " + what + " " + dcb + " " + db + " " + dcbtime + " " + dbtime;
             
             var data = localStorage.getItem(opts.localStorage.timekeeperLogs);
             data = log + "\n" + data;
