@@ -36,6 +36,14 @@
                 transform: rotate(45deg) scale(0.5, 0.5);
                 transition: 1s transform;
             }
+            /* show last sub slide */
+            .deck-container.lastsubslide:not(.no-status)::after {
+               position: absolute;
+               right: 0; bottom: 0;
+               content: "⛶";
+               color: grey;
+               font-size: 40px;
+            }
         </style>
 
 
