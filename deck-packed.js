@@ -1,6 +1,6 @@
 /*
   This is a packed deck.js with some extensions and styles.
-  It has been generated from version e732bc7efdd91724d08e4fa5793878bdb52bcaa2 .
+  It has been generated from version 8ce4d667dcdfeaceb8775d08d810584cddddb082 .
   It includes:
      ..../extensions/includedeck/load.js
      ..../jquery.min.js
@@ -5208,6 +5208,7 @@ https://github.com/imakewebthings/deck.js/blob/master/MIT-license.txt
 /*
 This module provides new methods for stepping without considering sub-slides, together with tools for finding toplevel slides etc.
 It also overrides the defaults keybinding and countNested value (so it is better to include it after "goto" and "status" extensions).
+It also adds provides better handling of subslides, for the purpose of animations and styling.
 */
 
 (function($, deck, undefined) {
@@ -5219,6 +5220,9 @@ It also overrides the defaults keybinding and countNested value (so it is better
         selectors: {
             subslidesToNotify: ".slide,.onshowtoplevel",
             subslidesToAlwaysNotify: ".slide.withglobalimpact"
+        },
+        classes: {
+            containerLastSubSlide: "lastsubslide"
         },
         // Here we redefined the defaults:
         //  - we avoid counting nested slides
@@ -5313,7 +5317,29 @@ It also overrides the defaults keybinding and countNested value (so it is better
             $[deck]('go', currentParent - 1);
         }
     });
+    $d.bind('deck.beforeInit', function() {
+        var appendClass = function(o, at, cl) {
+            if (typeof(o.attr(at)) == 'undefined') {
+                o.attr(at, cl);
+            } else {
+                o.attr(at, o.attr(at) + " " + cl);
+            }
+        };
+        /* Add data-container-class, handled by deck.container-styling.js (if included) */
+        var opts = $[deck]('getOptions');
+        var icur = 0;
+        var L = $[deck]('getSlides').length;
+        var lastParent = $[deck]('getToplevelSlideOfIndex', icur).node;
+        for (; icur < L; icur++) {
+            var cursorParent = $[deck]('getToplevelSlideOfIndex', icur).node;
+            if (! cursorParent.is(lastParent)) {
+                lastParent = cursorParent;
+                appendClass($[deck]('getSlides')[icur-1], 'data-container-class', opts.classes.containerLastSubSlide);
+            }
+        }
+    });
     $d.bind('deck.init', function() {
+        /* Add key bindings */
         $d.unbind('keydown.decknexttoplevel').bind('keydown.decknexttoplevel', function(e) {
             var $opts = $[deck]('getOptions');
             var key = $opts.keys.nextTopLevel;
