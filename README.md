@@ -28,7 +28,7 @@ Optional, step 4, change the theme:
 
 ## What it contains
 
-Latest version (see around https://github.com/twitwi/deck.js/blob/master/extensions/includedeck/load.js#L182 for details):
+Latest version (see around https://github.com/twitwi/deck.js/blob/master/extensions/includedeck/load.js#L187 for details):
 - profile-6 + lightreddense-theme + katex-fonts
 
 
