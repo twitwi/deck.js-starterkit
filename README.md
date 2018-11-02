@@ -29,7 +29,7 @@ Optional, step 4, change the theme:
 ## What it contains
 
 Latest version (see around https://github.com/twitwi/deck.js/blob/master/extensions/includedeck/load.js#L187 for details):
-- profile-6 + lightreddense-theme + katex-fonts
+- profile-8 + lightreddense-theme + katex-fonts
 
 
 
@@ -39,7 +39,7 @@ Deck.js profile with extensions:
 
     git clone https://github.com/twitwi/deck.js tmpdeck
     git -C tmpdeck/ pull
-    node ./tmpdeck/extensions/bundle-maker/make-packed.js "profile-6" deck-packed.js
+    node ./tmpdeck/extensions/bundle-maker/make-packed.js "profile-8" deck-packed.js
     sed -i -e 's@/.*/tmpdeck//*@..../@g' deck-packed.js
 
 Fonts for offline KaTeX (math equations):
