@@ -11,6 +11,7 @@
 
         <style type="text/css">
             /* custom css can be written here, some examples provided */
+            .helparea { background: #FFFFFFBA; }
             
             /* for the base demo */
             .in-red {color: red !important; text-decoration: underline;}
@@ -73,7 +74,6 @@
 - Examples of incremental apparition of bullet points
 - **NB: Use left/right arrows to navigate**
 
-
 # <span class="var-title-br"></span> {*no-status title-slide} // comment
 - <span class="var-author"></span>
 - <span class="var-date"></span>
@@ -89,11 +89,34 @@
 ## One can type slides in markdown
 - Most of this demo is like that that
 
-## You can mix HTML too, if you need very specific things
+## You can use HTML too, if you need very specific things
 <div>
     <div style="width: 45%; float: left; border: 1px solid black;"> this is a two-column layout (that could be achieved with some classes and css styles also) </div>
     <div style="width: 45%; float: right; border: 1px solid black;"> lorem ipsum … </div>
 </div>
+
+## You can mix HTML + MD too
+<div markdown="true">
+* this is **interpreted** (standard div with the markdown attribute)
+    `<div markdown="true">...</div>`
+</div>
+<hr/>
+<mdiv>
+* this is **interpreted** (custom mdiv element)
+</mdiv>
+<mdiv>
+* this is **interpreted** (custom mdiv again)
+</mdiv>
+<hr/>
+<div>
+* this is **not** interpreted (plain elements) <br/>
+  <code>\<div>...\</div></code>
+</div>
+<hr/>
+<mdiv>
+  <mdiv style="width: 45%; float: left; border: 1px solid black;">(no 4-space indent) two column, **interpreted** </mdiv>
+  <mdiv style="width: 45%; float: right; border: 1px solid black;"> lorem ~~ipsum~~ … </mdiv>
+</mdiv>
 
 ## Adding classes and incremental display
 - This has a css class that makes it hightlighted in red {in-red}
@@ -107,12 +130,18 @@
 - and later {slide}
 - This one is there from the beginning
 
-## Adding images etc
-- One can use plain html
-- As here: <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/96/139.jpg" alt="kitten!"/>
+
+## Adding images etc {imgInline}
+<style>
+    .imgInline img {display: inline-block !important;}
+</style>
+- One can use plain html or markdown
+- As here: <img src="https://placeimg.com/96/139/nature" alt="nice!"/>
+    or (md) ![simple](https://placeimg.com/97/139/nature)
+    or (sized) ![simple](https://placeimg.com/400/400/nature =120x120)
 - Or there:
 
-<img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/139.jpg" alt="kitten!"/>
+<img src="http://placeimg.com/200/139/nature" alt="nice!"/>
 
 NB: these ones are online but you can use local images as well
 
@@ -148,6 +177,7 @@ NB: these ones are online but you can use local images as well
 - @anim: %-class:/zoomed-out
 
 ## Useful [shortcuts](http://home.heeere.com/tech-deckjs-ext.html#keys)
+- 'h' to toggle the help area
 - 'g' to open the "goto slide" panel
 - 'm' to view the slide selector
 - 'c' to clone the view (the original becomes the presenter view)
@@ -173,20 +203,18 @@ def main():
    return a+1
 
 main()
-{auto}
 ```
 
 - Some shell
 ```bash
 echo "hello ${world}"
-{auto}
 ```
 
 ## Highlighting source code
 - With the `dense` class (custom css for this page)
 ```python
 def magic(a): return a*a+1
-{auto dense}
+{dense}
 ```
 - and more
 ```python
@@ -206,7 +234,7 @@ def magic(a):
 # @copy: #the-overview: %+class:in-red: ol
 
 ## random END image {/no-status /blackbg image-full bottom-right darkened}
-<img src="http://lorempixel.com/800/600/"/>
+<img src="http://picsum.photos/800/600?random"/>
 
 # fake end (check the slide number and go to the next slide) {deck-status-fake-end}
 
